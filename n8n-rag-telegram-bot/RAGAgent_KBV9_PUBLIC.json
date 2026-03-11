@@ -1,0 +1,1272 @@
+{
+  "name": "Auki KB - Ingestion (Final) Debugged",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "64746039-15d9-44ba-b2b9-501a07494fe5",
+      "name": "Telegram Trigger2",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -448,
+        192
+      ],
+      "webhookId": "a7393050-af75-48e9-8d26-fb890f887f48",
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_CREDENTIAL_ID",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst msg = $input.first().json;\n\nconst chatId = msg?.message?.chat?.id || msg?.callback_query?.message?.chat?.id;\nconst userId = String(msg?.message?.from?.id || msg?.callback_query?.from?.id || '');\nconst firstName = msg?.message?.from?.first_name || 'there';\nconst text = (msg?.message?.text || '').trim();\n\nconst isStart = text === '/start';\nconst isHelp = text === '/help';\nconst isReset = text === '/reset';\nconst isCommand = isStart || isHelp || isReset;\nconst isEmpty = !text;\n\nreturn [{\n  json: { chatId, userId, firstName, text, isStart, isHelp, isReset, isCommand, isEmpty }\n}];\n"
+      },
+      "id": "f70cc263-4e1c-4aaa-8148-df486df3543b",
+      "name": "Parse Message2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.isStart }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "91e21230-0e58-48f9-a5cb-0da164cd30b8",
+      "name": "Is /start?2",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "c2",
+              "leftValue": "={{ $json.isHelp }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "265ea316-c1cb-406f-bb05-52f5c89d7748",
+      "name": "Is /help?2",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        0,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "c3",
+              "leftValue": "={{ $json.isReset }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "2fa751ef-d9ae-4483-b331-dfbd798a7191",
+      "name": "Is /reset?2",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        0,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "c4",
+              "leftValue": "={{ $json.isCommand }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "false"
+              }
+            },
+            {
+              "id": "c5",
+              "leftValue": "={{ $json.isEmpty }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "false"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "1f3e3456-f9ed-4718-8188-0b3092d86079",
+      "name": "Is Regular Message?2",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        0,
+        544
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Parse Message2').item.json.chatId }}",
+        "text": "Hello. I'm the Auki Knowledge Base Agent.\n\nAuki Labs is the team behind Posemesh, an open, decentralized protocol for spatial computing and shared machine perception. We're addressing a coordination problem that neither Big Tech nor Web3 has solved.\nWhether you're conducting technical due diligence or exploring the investment case, I can answer questions on our protocol, architecture, team, and roadmap.\n\n/help for example questions | /reset to clear your session",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "08ef1a6a-0642-4ff0-b610-b86ea5128e1a",
+      "name": "Send Welcome2",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        272,
+        0
+      ],
+      "webhookId": "7467dcba-f662-4412-9df3-18de564bafad",
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_CREDENTIAL_ID",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Parse Message2').item.json.chatId }}",
+        "text": "Here are some things you can ask me:\n\nTechnical questions:\n- What is the posemesh?\n- How does decentralized pose estimation work?\n- What are the use cases for the posemesh in robotics?\n- How does Auki differ from Meta's spatial computing approach?\n\nInvestor questions:\n- What market is Auki targeting?\n- Who are the key team members?\n- What is Auki's mission?\n\nI answer from our official knowledge base - docs, whitepapers, and more.\n\n/help for example questions | /reset to clear your session",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "200d8fb3-44db-4f05-988a-42128ed64fec",
+      "name": "Send Help2",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        272,
+        192
+      ],
+      "webhookId": "6d335435-a030-45fd-a0ce-1a19cf8f85d4",
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_CREDENTIAL_ID",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DELETE FROM auki_conversation_history WHERE user_id = '{{ $json.userId }}';",
+        "options": {}
+      },
+      "id": "3d8783f5-dec6-46c1-8ae0-9d5e33bb954f",
+      "name": "Clear History in Supabase2",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        272,
+        368
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "YOUR_POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres account (Supabase)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Parse Message2').item.json.chatId }}",
+        "text": "Conversation history cleared. Fresh start - ask me anything about Auki Labs!",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "98d644c1-3a19-40e5-b3bc-7810648a5489",
+      "name": "Send Reset Confirmation2",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        512,
+        368
+      ],
+      "webhookId": "f62de7a1-4357-4deb-9fe6-b83681e3ba1f",
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_CREDENTIAL_ID",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/embeddings",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "text-embedding-3-small"
+            },
+            {
+              "name": "input",
+              "value": "={{ $json.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "841b8d2f-d8d1-4f98-90be-888b5bcbfeb6",
+      "name": "Embed User Query2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        272,
+        544
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "YOUR_OPENAI_CREDENTIAL_ID",
+          "name": "OpenAI Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const embeddingResponse = $input.first().json;\nconst userText = $('Parse Message2').item.json.text;\nconst userId = $('Parse Message2').item.json.userId;\nconst chatId = $('Parse Message2').item.json.chatId;\n\nconst vector = embeddingResponse?.data?.[0]?.embedding\n  || embeddingResponse?.embedding\n  || [];\n\nif (!vector.length) {\n  throw new Error('Failed to get embedding from OpenAI');\n}\n\n// Store as array, not string - let the SQL node handle formatting\nreturn [{ json: { \n  userText, \n  userId, \n  chatId, \n  queryVector: vector,  // Keep as array\n  queryVectorStr: '[' + vector.join(',') + ']'  // Pre-built string version\n}}];"
+      },
+      "id": "b83371dd-959f-4042-a0ae-93b39a52f46c",
+      "name": "Prepare Vector Query2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        512,
+        544
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT role, content FROM auki_conversation_history WHERE user_id = '{{ $json.userId }}' ORDER BY created_at ASC LIMIT 10;",
+        "options": {}
+      },
+      "id": "d8276457-695f-474f-9d91-52041951daf3",
+      "name": "Fetch Conversation History2",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        1312,
+        544
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "YOUR_POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres account (Supabase)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nconst userText = item.userText;\nconst userId   = item.userId;\nconst chatId   = item.chatId;\nconst kbChunks = item.kbChunks || [];\nconst history  = item.history  || [];\n\nconst contextText = kbChunks.length > 0\n  ? kbChunks.map(c => '[Source: ' + c.file_name + ']\\n' + c.content).join('\\n\\n---\\n\\n')\n  : '';\n\nconst systemPrompt = `You are the Auki Knowledge Agent - an official representative of Auki.com.\nYou help investors, developers, and curious people learn everything about Auki and the posemesh.\n\nIDENTITY RULES:\n- You ARE part of the Auki team. Use \"we\", \"our\", \"us\" when referring to Auki.\n- Speak with authority and warmth as someone who works at Auki.\n\nANTI-REPETITION RULES:\n- Read the full conversation history above before replying.\n- If you already answered this question or covered this topic, DO NOT repeat it. Say: \"As mentioned above, ...\" and add only new detail.\n- NEVER re-introduce Auki or the Posemesh if already done in this conversation.\n- NEVER open your reply with a greeting like \"Hi there!\", \"Hello!\", \"Hey!\", or any variant. Go straight to answering the question.\n- If the user asks the same question twice, acknowledge it briefly and add new information.\n\nTONE RULES:\n- Technical questions: be nerdy, precise, deep. Cover spatial computing, decentralization, SLAM, AR anchoring, multi-agent robotics.\n- Investor questions: professional, factual, investor-relations style. No hype, no price speculation.\n- Always concise. Respect the reader's time.\n\nFORMATTING:\n- More than 4 sentences: split into short paragraphs.\n- NEVER exceed 8000 characters.\n- NEVER use em dashes or en dashes. Use hyphens (-) only.\n- Always write \"Posemesh\" with a capital P. Never write \"posemesh\".\n- Bullet points are fine for lists.\n\nCONTENT RULES:\n- Answer questions about the Auki team, founders, and advisors using the knowledge base context. If team info is in the context, always answer specifically.\n- Only answer from official Auki sources and the knowledge base context provided.\n- If a topic is genuinely not in official sources, reply: \"I don't have any official information on that.\"\n- No financial projections or token price predictions.`;\n\nconst knowledgeContext = contextText\n  ? 'RELEVANT KNOWLEDGE BASE CONTEXT (from official Auki documents):\\n\\n' + contextText\n  : 'No matching knowledge base content found. Use general Auki knowledge or say you do not have official information.';\n\nconst messages = [\n  { role: 'system', content: systemPrompt },\n  { role: 'system', content: knowledgeContext },\n  ...history,\n  { role: 'user', content: userText }\n].filter(m => m && typeof m.role === 'string' && typeof m.content === 'string' && m.content.trim() !== '');\n\nconst openAiBody = JSON.stringify({\n  model: 'gpt-4o',\n  messages: messages,\n  temperature: 0.3,\n  max_tokens: 1000\n});\n\nreturn [{ json: { messages, openAiBody, userText, userId, chatId } }];"
+      },
+      "id": "4e4223bb-eccc-421d-beac-843789f22c9b",
+      "name": "Build Prompt2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1696,
+        544
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ $json.openAiBody }}",
+        "options": {}
+      },
+      "id": "2d293a86-3178-4fc7-809f-9f3530a2657c",
+      "name": "OpenAI - Generate Answer2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1888,
+        544
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "YOUR_OPENAI_CREDENTIAL_ID",
+          "name": "OpenAI Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw      = $input.first().json;\nconst bp       = $('Build Prompt2').first().json;\nconst parsed   = $('Parse Message2').first().json;\n\nconst userText = bp.userText || parsed.text  || '';\nconst userId   = bp.userId   || parsed.userId || '';\nconst chatId   = bp.chatId   || parsed.chatId || '';\n\nlet reply = raw?.choices?.[0]?.message?.content\n  || raw?.content\n  || raw?.text\n  || raw?.message?.content\n  || 'Sorry, I ran into an issue generating a response. Please try again.';\n\nif (reply.length > 4096) {\n  reply = reply.substring(0, 4090) + '...';\n}\n\nconst userTextSafe = userText.replace(/'/g, \"''\");\nconst replySafe    = reply.replace(/'/g, \"''\");\n\nreturn [{ json: { reply, userText, userId, chatId, userTextSafe, replySafe } }];"
+      },
+      "id": "e4b2b542-c7d7-4dae-b8ce-0355c02a2124",
+      "name": "Format Reply2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2080,
+        544
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "={{ $json.reply }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "c4ce97f7-6258-49f0-8e30-4e5c2c174ffb",
+      "name": "Send Reply to Telegram2",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2272,
+        464
+      ],
+      "webhookId": "05c45b71-73ca-45d2-b926-9a772557126a",
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_CREDENTIAL_ID",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO auki_conversation_history (user_id, role, content, created_at)\nSELECT * FROM (VALUES\n  ('{{ $json.userId }}', 'user', '{{ $json.userTextSafe }}', NOW() - INTERVAL '1 second'),\n  ('{{ $json.userId }}', 'assistant', '{{ $json.replySafe }}', NOW())\n) AS new_rows(user_id, role, content, created_at)\nWHERE NOT EXISTS (\n  SELECT 1 FROM auki_conversation_history\n  WHERE user_id = '{{ $json.userId }}'\n    AND content = '{{ $json.userTextSafe }}'\n    AND created_at > NOW() - INTERVAL '30 seconds'\n);",
+        "options": {}
+      },
+      "id": "34ded54d-84a4-44a7-85c4-93ff33ca59da",
+      "name": "Save History to Supabase2",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        2272,
+        672
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "YOUR_POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres account (Supabase)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyHour"
+            }
+          ]
+        },
+        "triggerOn": "specificFile",
+        "fileToWatch": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_GOOGLE_DRIVE_FILE_ID"
+        }
+      },
+      "id": "f48c11ae-5e8b-449e-ad85-e6aeaa021073",
+      "name": "Google Drive Trigger2",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        -3200,
+        192
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "YOUR_GOOGLEDRIVE_CREDENTIAL_ID",
+          "name": "Google Drive OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_DRIVE_FILE_ID",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "c6c037f0-592d-4786-8fcd-20e57b90b875",
+      "name": "Download File2",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -2976,
+        192
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "YOUR_GOOGLEDRIVE_CREDENTIAL_ID",
+          "name": "Google Drive OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {
+          "keepSource": "json"
+        }
+      },
+      "id": "2f4cce49-855c-404e-a31c-d7934111aae0",
+      "name": "Extract Text2",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -2752,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\n// Pull text directly from the named Extract Text node\nconst rawText = $('Extract Text2').item.json.text;\n\nif (!rawText || rawText.length < 50) {\n  throw new Error('No text extracted. Length: ' + (rawText || '').length);\n}\n\n// Dynamically get file info from the Google Drive Trigger output\nconst triggerData = $('Google Drive Trigger2').item.json;\nconst fileId = triggerData.id || triggerData.fileId || 'YOUR_GOOGLE_DRIVE_FILE_ID';\nconst fileName = triggerData.name || triggerData.fileName || 'Auki Knowledge Base';\nconst CHUNK_SIZE = 800;\nconst OVERLAP = 150;\n\nconst paragraphs = rawText.split(/\\n\\n+/).filter(p => p.trim().length > 20);\nconst chunks = [];\nlet current = '';\nlet idx = 0;\n\nfor (const para of paragraphs) {\n  const t = para.trim();\n  if ((current + '\\n\\n' + t).length <= CHUNK_SIZE) {\n    current = current ? current + '\\n\\n' + t : t;\n  } else {\n    if (current.length > 50) {\n      chunks.push({ fileId, fileName, chunkIndex: idx, content: current.trim() });\n      idx++;\n    }\n    current = current.slice(-OVERLAP) + '\\n\\n' + t;\n  }\n}\nif (current.trim().length > 50) {\n  chunks.push({ fileId, fileName, chunkIndex: idx, content: current.trim() });\n}\n\nconsole.log('Total chunks:', chunks.length, '| File:', fileName, '| ID:', fileId);\nreturn chunks.map(c => ({ json: c }));\n"
+      },
+      "id": "4ed605f6-f886-4f48-9f23-4bd8a6f72086",
+      "name": "Chunk Document2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2528,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst allChunks = $input.all().map(i => i.json);\nreturn [{ json: {\n  fileId: allChunks[0].fileId,\n  fileName: allChunks[0].fileName,\n  totalChunks: allChunks.length,\n  chunks: allChunks\n}}];\n"
+      },
+      "id": "1742d3e4-2d34-4cde-8d27-bed735c51074",
+      "name": "Prepare Deletion2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2320,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DELETE FROM auki_knowledge WHERE file_id = '{{ $json.fileId }}';",
+        "options": {}
+      },
+      "id": "18dadb0f-be60-4aa3-ae4b-cecba47896b4",
+      "name": "Delete Old Chunks2",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        -2096,
+        192
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "YOUR_POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres account (Supabase)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const { chunks } = $('Prepare Deletion2').first().json;\nreturn chunks.map(c => ({ json: c }));"
+      },
+      "id": "98bfbf4d-5382-41e7-a77a-187d6cb82810",
+      "name": "Re-emit Chunks2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1872,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/embeddings",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "text-embedding-3-small"
+            },
+            {
+              "name": "input",
+              "value": "={{ $json.content }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2420cd90-da39-4b37-8a92-2d290ae10f2c",
+      "name": "Embed Chunk2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -1648,
+        192
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "YOUR_OPENAI_CREDENTIAL_ID",
+          "name": "OpenAI Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const chunk = $('Re-emit Chunks2').item.json;\nconst embeddingResponse = $input.item.json;\nconst embeddingVector = embeddingResponse?.data?.[0]?.embedding || [];\n\nif (!embeddingVector.length) {\n  throw new Error('No embedding for chunk ' + chunk.chunkIndex);\n}\n\n// Pre-escape single quotes for safe SQL interpolation\nconst escapeSql = s => String(s).replace(/'/g, \"''\");\n\nreturn {\n  json: {\n    file_id:     escapeSql(chunk.fileId),\n    file_name:   escapeSql(chunk.fileName),\n    chunk_index: chunk.chunkIndex,\n    content:     escapeSql(chunk.content),\n    embedding:   '[' + embeddingVector.join(',') + ']',\n    metadata:    escapeSql(JSON.stringify(chunk.metadata || {}))\n  }\n};"
+      },
+      "id": "e65c88d8-9772-44ef-a45d-61a33bb9f4f9",
+      "name": "Prepare Row2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1440,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO auki_knowledge (file_id, file_name, chunk_index, content, embedding, metadata)\nVALUES (\n  '{{ $json.file_id }}',\n  '{{ $json.file_name }}',\n  {{ $json.chunk_index }},\n  '{{ $json.content }}',\n  '{{ $json.embedding }}'::vector,\n  '{{ $json.metadata }}'::jsonb\n);",
+        "options": {}
+      },
+      "id": "23b7fb6a-0639-49a3-8781-e2c13bc4ec7f",
+      "name": "Insert into Supabase2",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        -1216,
+        192
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "YOUR_POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres account (Supabase)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => ({ json: {\n  status: 'success',\n  message: 'Inserted chunk #' + item.json.chunk_index + ' of ' + item.json.file_name,\n  timestamp: new Date().toISOString()\n}}));"
+      },
+      "id": "60b4aa92-799d-475e-b4fe-3266c7c237a7",
+      "name": "Log Success2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -992,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst vector = data.queryVector;\nconst vectorStr = vector.join(',');\n\n// Pre-build raw JSON body for Supabase RPC call \u2014 avoids bodyParameters\n// type-coercion issues with number fields and array values.\nconst supabaseBody = JSON.stringify({\n  query_embedding: vector,\n  match_threshold: 0.0,\n  match_count: 5\n});\n\nreturn [{ json: {\n  userText: data.userText,\n  userId: data.userId,\n  chatId: data.chatId,\n  queryVector: vector,\n  queryVectorStr: vectorStr,\n  supabaseBody: supabaseBody\n}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        736,
+        544
+      ],
+      "id": "afe1dd01-86ba-42c6-b41f-e41abd0b8ca2",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT content, file_name, 1 - (embedding <=> '[{{ $json.queryVectorStr }}]'::vector) AS similarity FROM auki_knowledge ORDER BY embedding <=> '[{{ $json.queryVectorStr }}]'::vector LIMIT 5;",
+        "options": {}
+      },
+      "id": "c54a0ce0-a8d7-48b0-999f-2054a61ec544",
+      "name": "Vector Search KB",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        928,
+        544
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "YOUR_POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres account (Supabase)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// HTTP Request returns 0-5 rows from Supabase vector search.\n// Collect ALL of them into one item so the next node runs exactly once.\nconst allItems = $input.all();\nconst kbChunks = allItems\n  .filter(i => i.json && i.json.content)\n  .map(i => ({ content: i.json.content, file_name: i.json.file_name || 'Auki KB' }));\n\n// Preserve routing context from upstream\nconst ctx = $('Code in JavaScript2').first().json;\n\nreturn [{ json: {\n  userText:      ctx.userText,\n  userId:        ctx.userId,\n  chatId:        ctx.chatId,\n  kbChunks:      kbChunks\n}}];"
+      },
+      "id": "559559d9-9db6-42ad-861b-fbd5104397b2",
+      "name": "Aggregate KB Results1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        544
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputItems = $input.all();\n\n// History rows come from Fetch Conversation History2 via $input\nconst historyItems = inputItems.filter(i => i.json.role && i.json.content);\n\n// Context (kbChunks, userText, userId, chatId) pulled directly from upstream node\n// This avoids depending on Aggregate KB Results1 as a second input\nconst ctx = $('Aggregate KB Results1').first().json;\n\nconst history = historyItems\n  .map(i => ({ role: i.json.role, content: i.json.content }));\n\nreturn [{ json: {\n  userText: ctx.userText,\n  userId:   ctx.userId,\n  chatId:   ctx.chatId,\n  kbChunks: ctx.kbChunks || [],\n  history:  history\n}}];"
+      },
+      "id": "a42cfa4f-dd17-4a03-bb02-efa0b2c78836",
+      "name": "Aggregate History1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1504,
+        544
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "id": "8cdb202f-db2c-4ce4-b7ac-e8869303dfdf",
+      "name": "\ud83d\udce5 Ingestion Workflow Header",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -3620,
+        -120
+      ],
+      "parameters": {
+        "width": 2800,
+        "height": 80,
+        "color": 5,
+        "content": "## \ud83d\udce5 Knowledge Base Ingestion Workflow\nAutomatically ingests PDFs from Google Drive into Supabase as vector embeddings."
+      }
+    },
+    {
+      "id": "0eeb4711-4b44-491f-9905-bdc1695624ac",
+      "name": "Note: Trigger",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -3240,
+        60
+      ],
+      "parameters": {
+        "width": 280,
+        "height": 200,
+        "color": 6,
+        "content": "### 1. Trigger\nPolls Google Drive every hour for changes to the watched PDF file."
+      }
+    },
+    {
+      "id": "300ebbdb-1bae-4cab-ab56-10715afa6eae",
+      "name": "Note: Extract",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -3000,
+        60
+      ],
+      "parameters": {
+        "width": 460,
+        "height": 200,
+        "color": 6,
+        "content": "### 2. Download & Extract\nDownloads the PDF from Drive and extracts raw text content."
+      }
+    },
+    {
+      "id": "6e9d9681-d355-4b9e-b1d5-478ee66592fc",
+      "name": "Note: Chunk",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2560,
+        60
+      ],
+      "parameters": {
+        "width": 500,
+        "height": 200,
+        "color": 6,
+        "content": "### 3. Chunk Document\nSplits the text into overlapping 800-char chunks with 150-char overlap for better semantic search."
+      }
+    },
+    {
+      "id": "27d4c943-0f03-4ad2-aaad-1546d3aab029",
+      "name": "Note: Delete",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2140,
+        60
+      ],
+      "parameters": {
+        "width": 500,
+        "height": 200,
+        "color": 6,
+        "content": "### 4. Delete Old Chunks\nCollects all chunks, then deletes existing DB rows for this file before re-inserting \u2014 ensures clean updates."
+      }
+    },
+    {
+      "id": "95930fe1-f854-484d-9980-05355f740585",
+      "name": "Note: Embed & Insert",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1680,
+        60
+      ],
+      "parameters": {
+        "width": 680,
+        "height": 200,
+        "color": 6,
+        "content": "### 5. Embed & Insert\nFor each chunk: calls OpenAI text-embedding-3-small, formats the vector row, and inserts into Supabase auki_knowledge table."
+      }
+    },
+    {
+      "id": "52913f59-cc46-41c4-80e5-8eb8fe8be3c5",
+      "name": "Note: Log",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1010,
+        60
+      ],
+      "parameters": {
+        "width": 260,
+        "height": 200,
+        "color": 6,
+        "content": "### 6. Log\nLogs a success entry for each inserted chunk."
+      }
+    },
+    {
+      "id": "d4f3c08a-e046-4b2c-a832-508dd9be34e3",
+      "name": "\ud83d\udce8 Telegram Bot Header",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        -200
+      ],
+      "parameters": {
+        "width": 2900,
+        "height": 80,
+        "color": 3,
+        "content": "## \ud83d\udce8 Telegram Bot Workflow\nReceives Telegram messages, routes commands, and answers questions using RAG (vector search + GPT-4o)."
+      }
+    },
+    {
+      "id": "b71eb8e9-b879-4cd8-b246-dda9512df871",
+      "name": "Note: Receive & Parse",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -470,
+        -80
+      ],
+      "parameters": {
+        "width": 260,
+        "height": 170,
+        "color": 7,
+        "content": "### 1. Receive & Parse\nTelegram webhook receives messages. Parses chatId, userId, text and detects /start, /help, /reset commands."
+      }
+    },
+    {
+      "id": "c5f19a41-f0d4-400d-9ff7-49554f95e7b5",
+      "name": "Note: Command Router",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -20,
+        -200
+      ],
+      "parameters": {
+        "width": 330,
+        "height": 180,
+        "color": 7,
+        "content": "### 2. Command Router\nFans out to 4 IF nodes in parallel:\n- /start \u2192 Welcome message\n- /help \u2192 Help message\n- /reset \u2192 Clear history\n- Regular \u2192 AI pipeline"
+      }
+    },
+    {
+      "id": "ccf07a85-f2fa-424c-b89d-906b87dae8d3",
+      "name": "Note: Command Responses",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        250,
+        -200
+      ],
+      "parameters": {
+        "width": 340,
+        "height": 180,
+        "color": 7,
+        "content": "### 3. Command Responses\nSends static replies for /start, /help, and /reset. Reset deletes the user's conversation history from Supabase."
+      }
+    },
+    {
+      "id": "a44d7560-b5ba-48b6-b73d-0bec08f74a50",
+      "name": "Note: Vector Search",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        250,
+        420
+      ],
+      "parameters": {
+        "width": 960,
+        "height": 210,
+        "color": 7,
+        "content": "### 4. Embed Query & Vector Search\nEmbeds the user's question with OpenAI, builds the vector query string, then runs a pgvector similarity search against auki_knowledge to fetch the top 5 relevant chunks."
+      }
+    },
+    {
+      "id": "e09ab87c-081c-4236-9bf2-a02a7f130192",
+      "name": "Note: Build & Call AI",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1090,
+        420
+      ],
+      "parameters": {
+        "width": 860,
+        "height": 210,
+        "color": 7,
+        "content": "### 5. Aggregate & Build Prompt\nAggregates KB chunks, fetches conversation history from Supabase, merges both into a structured GPT-4o prompt with system instructions, context, and chat history."
+      }
+    },
+    {
+      "id": "7981b272-6431-4f78-a560-6f7293727736",
+      "name": "Note: Reply & Save",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1860,
+        320
+      ],
+      "parameters": {
+        "width": 500,
+        "height": 210,
+        "color": 7,
+        "content": "### 6. Format, Send & Save\nFormats the AI reply (truncates at 4096 chars), sends it to Telegram, and saves both the user message and assistant reply to Supabase conversation history."
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger2": {
+      "main": [
+        [
+          {
+            "node": "Parse Message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Message2": {
+      "main": [
+        [
+          {
+            "node": "Is /start?2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Is /help?2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Is /reset?2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Is Regular Message?2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is /start?2": {
+      "main": [
+        [
+          {
+            "node": "Send Welcome2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is /help?2": {
+      "main": [
+        [
+          {
+            "node": "Send Help2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is /reset?2": {
+      "main": [
+        [
+          {
+            "node": "Clear History in Supabase2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Regular Message?2": {
+      "main": [
+        [
+          {
+            "node": "Embed User Query2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clear History in Supabase2": {
+      "main": [
+        [
+          {
+            "node": "Send Reset Confirmation2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embed User Query2": {
+      "main": [
+        [
+          {
+            "node": "Prepare Vector Query2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Vector Query2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Conversation History2": {
+      "main": [
+        [
+          {
+            "node": "Aggregate History1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Prompt2": {
+      "main": [
+        [
+          {
+            "node": "OpenAI - Generate Answer2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI - Generate Answer2": {
+      "main": [
+        [
+          {
+            "node": "Format Reply2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Reply2": {
+      "main": [
+        [
+          {
+            "node": "Send Reply to Telegram2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Save History to Supabase2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive Trigger2": {
+      "main": [
+        [
+          {
+            "node": "Download File2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download File2": {
+      "main": [
+        [
+          {
+            "node": "Extract Text2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Text2": {
+      "main": [
+        [
+          {
+            "node": "Chunk Document2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chunk Document2": {
+      "main": [
+        [
+          {
+            "node": "Prepare Deletion2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Deletion2": {
+      "main": [
+        [
+          {
+            "node": "Delete Old Chunks2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Old Chunks2": {
+      "main": [
+        [
+          {
+            "node": "Re-emit Chunks2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Re-emit Chunks2": {
+      "main": [
+        [
+          {
+            "node": "Embed Chunk2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embed Chunk2": {
+      "main": [
+        [
+          {
+            "node": "Prepare Row2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Row2": {
+      "main": [
+        [
+          {
+            "node": "Insert into Supabase2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert into Supabase2": {
+      "main": [
+        [
+          {
+            "node": "Log Success2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Vector Search KB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate KB Results1": {
+      "main": [
+        [
+          {
+            "node": "Fetch Conversation History2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate History1": {
+      "main": [
+        [
+          {
+            "node": "Build Prompt2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vector Search KB": {
+      "main": [
+        [
+          {
+            "node": "Aggregate KB Results1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "fc9db921-078b-44be-8488-ca3bcf93c971",
+  "meta": {},
+  "id": "tiUQTmGzqh2v7ajy",
+  "tags": []
+}
